@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>NoLimits-GPT</title>
+
+  <style>
+    /* CSS styles */
+    body, html {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-size: 14px; /* Adjust the base font size */
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 24px; /* Adjust the font size for the heading */
+    }
+
+    #githubicon {
+      margin-right: 4px;
+      position: relative;
+      top: 6px; /* Center the github icon */
+    }
+
+    .chat-container {
+      height: calc(100% - 80px); /* Adjusted height for the header */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px; /* Reduced padding */
+      border-left: 3px solid #ccc; /* Reduced border size */
+      border-right: 3px solid #ccc; /* Reduced border size */
+    }
+
+    .message {
+      margin-bottom: 5px; /* Reduced margin */
+      word-wrap: break-word;
+      display: flex;
+      word-break: break-all; /* Added to allow long words/messages to break */
+    }
+
+    .user-message {
+      text-align: left;
+      margin-left: auto;
+      font-size: 14px; /* Adjust the font size for messages */
+    }
+
+    .ai-message {
+      text-align: left;
+      margin-left: auto;
+      font-size: 14px; /* Adjust the font size for messages */
+      color: blue;
+    }
+
+    #user-input {
+      width: calc(100% - 20px); /* Reduced width */
+      min-height: 25px; /* Reduced height */
+      padding: 5px; /* Reduced padding */
+      margin: 5px;
+      font-size: 14px; /* Adjust the font size for input */
+    }
+
+    button {
+      padding: 5px 10px; /* Reduced padding */
+      font-size: 14px; /* Adjust the font size for button */
+      background-color: aqua;
+      transition: transform 0.1s ease; /* Smooth transition for button scaling */
+    }
+  </style>
+</head>
+
+<body>
+  <h1>NoLimits-GPT: The possibilities are endless
+    <a href="https://github.com/humzak711" style="font-size: 16px;">Click here to follow me on github! </a>
+    <img src="https://onmsft.com/wp-content/uploads/2020/04/githubappicon.jpg" width="25" height="20" id="githubicon">
+  </h1>
+
+  <div class="chat-container">
+    <div class="chat-box" id="chat-box"></div>
+
+    <div id="response-status" style="display: none; font-size: 12px; color: #777; margin-top: 5px; margin-left: 5px;">Generating response...</div>
+    <textarea id="user-input" placeholder="Type a message..." oninput="AdjustTextArea()"></textarea>
+    <button onclick="HandleButtonClick()">Send</button>
+  </div>
+
+  
+  <!-- Javascript to communicate with server + handle animations -->
+  <script>
+    let CanSend = true; // Flag to determine if user can send message
+    
+    // Function to handle animations when message is sent
+    function HandleButtonClick() {
+      if (CanSend) {
+        const sendButton = document.querySelector('button');
+
+        sendButton.style.transform = 'scale(0.95)';
+        sendButton.style.backgroundColor = 'aquamarine';
+
+        setTimeout(() => {
+          sendButton.style.transform = '';
+          sendButton.style.backgroundColor = 'aqua';
+        }, 100);
+
+        SendMessage(); // Send message to server
+      }
+    }
+    
+    // Function to handle behaviour of the "Enter" key
+    document.getElementById('user-input').addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        HandleButtonClick();
+      }
+    });
+
+
+    // Function to communicate with the server
+    async function SendMessage() {
+      const userInput = document.getElementById('user-input').value.trim();
+      const responseStatus = document.getElementById('response-status');
+
+      if (userInput !== '') { // Check if user input is valid
+        DisplayMessages(userInput, 'user');
+        CanSend = false; // Temporarily disable sending messages
+
+        responseStatus.style.display = 'block'; // Display the "Generating response..." message
+        
+        // Communicate with server via fetch API
+        try {
+          const response = await fetch('/api/receive_message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userInput })
+          });
+
+          const data = await response.json();
+          const aiResponse = data.response;
+          DisplayMessages(aiResponse, 'AI'); 
+        } 
+
+        catch (error) {
+          console.error('Error sending/receiving message:', error);
+        }
+        
+        document.getElementById('user-input').value = '';
+        AdjustTextArea();
+        responseStatus.style.display = 'none'; // Hide the "Generating response..." message after receiving response
+        CanSend = true;
+      }
+    }
+    
+
+    // Function to render messages on a new line on the chatbox
+    function DisplayMessages(message, sender) {
+      const ChatBox = document.getElementById('chat-box');
+      const newMessage = document.createElement('div');
+
+      newMessage.classList.add('message');
+      newMessage.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+      newMessage.textContent = (sender === 'user' ? 'You' : 'AI') + ': ' + message;
+      ChatBox.appendChild(newMessage);
+
+      ChatBox.scrollTop = ChatBox.scrollHeight;
+    }
+
+
+    // Function to change display accordingly
+    function AdjustTextArea() {
+      const textarea = document.getElementById('user-input');
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  </script>
+</body>
+
+</html>
