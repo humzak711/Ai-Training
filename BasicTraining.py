@@ -10,7 +10,7 @@ import os
 
 # Process datasets to pandas dataframes
 def process_csv_files(directory_path:str) -> list[str] | str:
-    ''' 
+    '''
     Iterate over given directory and process each dataset into
     a pandas dataframe then extract the data
     '''
@@ -57,7 +57,7 @@ def process_csv_files(directory_path:str) -> list[str] | str:
         return np.vstack(X_train), np.hstack(Y_train)  # Use np.hstack to concatenate the label arrays
 
 # Directory path containing CSV files
-target_directory_path = '/Training_Data/CSV'
+target_directory_path = '/Training_Data'
 X_train, Y_train = process_csv_files(target_directory_path)
 
 # Convert processed datasets to tensors
@@ -75,7 +75,7 @@ X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.
 
 
 # Define the neural network
-class NeuralNetwork(nn.Module): 
+class NeuralNetwork(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNetwork, self).__init__()
         self.fc1 = nn.Linear(input_size, 64)
@@ -109,11 +109,11 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Function to train the model
 def TrainAI(model_file:str, epochs:int=1) -> str :
-    
+
     ''' Trains the AI model within a designated number of epochs (default = 1)
         and saves it within a designated file'''
-    
-    # Check if the model file exists for loading the trained model 
+
+    # Check if the model file exists for loading the trained model
     if os.path.exists(model_file):
         model.load_state_dict(torch.load(model_file))
         model.train()  # Set the model to training mode for further training
@@ -125,12 +125,12 @@ def TrainAI(model_file:str, epochs:int=1) -> str :
     for epoch in range(epochs):
         optimizer.zero_grad()
         outputs = model(X_train)
-        
+
         # Resize the target labels to match the output size
         Y_train_resized = Y_train[:outputs.size(0)]  # Adjust the size of target labels
-        
+
         loss = criterion(outputs, Y_train_resized)
-        loss.backward() 
+        loss.backward()
         optimizer.step()
 
         # Validation
@@ -146,15 +146,4 @@ def TrainAI(model_file:str, epochs:int=1) -> str :
 
 # Start training
 if __name__ == '__main__':
-    TrainAI('NoLimitsAI.pth', 5) 
-
-# to do
-# learn about building ai lol 
-
-# gather training data
-# setup training - Define loss functions, optimizers, and any necessary hyperparameters
-# setup training loop using requests/beautifulsoup and pandas
-# feed the data to the ai
-# create CLI 
-# evaluate performance
-# deploy into the chatbox
+    TrainAI('model.pth', 100)
