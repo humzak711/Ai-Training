@@ -1,2 +1,2 @@
 # NoLimits-GPT
-Chad AI training
+AI training
