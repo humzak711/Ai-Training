@@ -57,7 +57,7 @@ def process_csv_files(directory_path:str) -> list[str] | str:
         return np.vstack(X_train), np.hstack(Y_train)  # Use np.hstack to concatenate the label arrays
 
 # Directory path containing CSV files
-target_directory_path = '/Training_Data'
+target_directory_path = 'Training_Data'
 X_train, Y_train = process_csv_files(target_directory_path)
 
 # Convert processed datasets to tensors
